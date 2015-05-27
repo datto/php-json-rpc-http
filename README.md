@@ -4,6 +4,7 @@
 
 * Fully compliant with the [JSON-RPC 2.0 specifications](http://www.jsonrpc.org/specification) (with 100% unit-test coverage)
 * Flexible: you can choose your own system for interpreting the JSON-RPC method strings
+* Dependable: works even when CURL is not installed
 * Minimalistic (just two tiny files)
 * Ready to use, with working examples
 
