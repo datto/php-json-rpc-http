@@ -42,10 +42,14 @@ $server->reply();
 
 ## Installation
 
-If you're using [Composer](https://getcomposer.org/), you can use this package
-by inserting a line in the "require" section of your "composer.json" file:
+You can download and update this package through Packagist:
+[datto/json-rpc-http](https://packagist.org/packages/datto/json-rpc-http).
+
+If you're using [Composer](https://getcomposer.org/) as your dependency
+manager, you can use this package simply by inserting a line into the
+"require" section of your "composer.json" file:
 ```
-        "datto/json-rpc-http": "1.0.*"
+        "datto/json-rpc-http": "~1.0"
 ```
 
 ## Getting started
