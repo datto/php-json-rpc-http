@@ -58,10 +58,13 @@ like this:
 	php examples/client.php
 	```
 
-2. Once your example is working, replace the "Server" code with your own code.
+2. Once your example is working, replace the
+[example "Server" code](https://github.com/datto/php-json-rpc-http/tree/master/examples/Server)
+with your own code.
 
-3. Write a clean wrapper around the JSON-RPC client class that will dovetail
-nicely with your project.
+3. Write a beautiful wrapper around the JSON-RPC client class that will dovetail
+with your project.
+
 
 ## Author
 
