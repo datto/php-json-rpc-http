@@ -46,7 +46,7 @@ If you're using [Composer](https://getcomposer.org/), you can use this package
 ([datto/json-rpc-http](https://packagist.org/packages/datto/json-rpc-http))
 by inserting a line into the "require" section of your "composer.json" file:
 ```
-        "datto/json-rpc-http": "~1.0"
+        "datto/json-rpc-http": "~2.0"
 ```
 
 ## Getting started
