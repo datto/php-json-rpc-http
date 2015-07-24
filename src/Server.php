@@ -38,12 +38,12 @@ class Server
 {
     private static $CONTENT_TYPE = 'application/json';
 
-    /** @var JsonRpc\Translator */
-    private $translator;
+    /** @var callable */
+    private $interpreter;
 
-    public function __construct(JsonRpc\Translator $translator)
+    public function __construct(callable $interpreter)
     {
-        $this->translator = $translator;
+        $this->interpreter = $interpreter;
     }
 
     public function reply()
@@ -58,7 +58,7 @@ class Server
             self::errorInvalidBody();
         }
 
-        $server = new JsonRpc\Server($this->translator);
+        $server = new JsonRpc\Server($this->interpreter);
         $reply = $server->reply($message);
 
         if ($reply === null) {
@@ -80,13 +80,13 @@ class Server
 
     private static function successNoContent()
     {
-        header('HTTP/1.0 204 No Content');
+        header('HTTP/1.1 204 No Content');
         exit();
     }
 
     private static function successContent($content)
     {
-        header('HTTP/1.0 200 OK');
+        header('HTTP/1.1 200 OK');
         header('Content-Type: ' . self::$CONTENT_TYPE);
         header('Content-Length: ' . strlen($content));
         echo $content;
@@ -95,7 +95,7 @@ class Server
 
     private static function error($code, $title, $description)
     {
-        header("HTTP/1.0 {$code} {$title}");
+        header("HTTP/1.1 {$code} {$title}");
 
         echo <<<EOS
 <!DOCTYPE html>

@@ -22,21 +22,20 @@
  * @copyright 2015 Datto, Inc.
  */
 
-require __DIR__ . '/../vendor/autoload.php';
+namespace Datto\JsonRpc\Http\Examples\Basic;
 
-use Datto\JsonRpc\Http\Client;
+use Datto\JsonRpc\Http;
 
-$uri = 'http://json-rpc-http/server.php';
+class Client extends Http\Client
+{
+    public function __construct($uri, $username, $password)
+    {
+        $authentication = base64_encode("{$username}:{$password}");
 
-// Typically, a request with an "Authorization" header would be sent over HTTPS
-$headers = array(
-    'Authorization' => 'Basic ' . base64_encode('username:password')
-);
+        $headers = array(
+            'Authorization' => "Basic {$authentication}"
+        );
 
-$client = new Client($uri, $headers);
-
-$client->query(1, 'add', array(1, 2));
-
-$reply = $client->send();
-
-print_r($reply); // array('jsonrpc' => '2.0', 'id' => 1, 'result' => 3);
+        parent::__construct($uri, $headers);
+    }
+}

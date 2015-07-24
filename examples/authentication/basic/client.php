@@ -22,21 +22,28 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Example\Server;
+require __DIR__ . '/../../../vendor/autoload.php';
 
-use Datto\JsonRpc;
+use Datto\JsonRpc\Http\Examples\Basic\Client;
 
-class Translator implements JsonRpc\Translator
-{
-    private static $class = '\\Datto\\JsonRpc\\Http\\Example\\Server\\Math';
 
-    /**
-     * @param string $method
-     *
-     * @return callable|null
-     */
-    public function getCallable($method)
-    {
-        return array(self::$class, $method);
-    }
-}
+# Valid Credentials
+
+$client = new Client('http://json-rpc-http/authentication/basic/server.php', 'username', 'password');
+
+$client->query(1, 'add', array(1, 2));
+
+$reply = $client->send();
+
+print_r($reply); // array('jsonrpc' => '2.0', 'id' => 1, 'result' => 3)
+
+
+# Invalid credentials
+
+$client = new Client('http://json-rpc-http/authentication/basic/server.php', 'invalid', 'invalid');
+
+$client->query(1, 'add', array(1, 2));
+
+$reply = $client->send();
+
+var_dump($reply); // null

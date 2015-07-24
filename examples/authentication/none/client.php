@@ -1,12 +1,10 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../../vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Client;
 
-$uri = 'http://json-rpc-http/server.php';
-
-$client = new Client($uri);
+$client = new Client('http://json-rpc-http/authentication/none/server.php');
 
 $client->query(1, 'add', array(1, 2));
 

@@ -22,26 +22,21 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Example\Server;
+namespace Datto\JsonRpc\Http\Examples\Custom;
 
-class Math
+use Datto\JsonRpc\Http;
+
+class Client extends Http\Client
 {
-    /**
-     * Returns the value $a + $b
-     *
-     * @param mixed $a
-     * @param mixed $b
-     *
-     * @return int|null
-     * Returns $a + $b if both $a and $b are integers
-     * Returns null otherwise
-     */
-    public static function add($a, $b)
+    public function __construct($uri, $username = null, $password = null)
     {
-        if (!is_int($a) || !is_int($b)) {
-            return null;
+        $headers = array();
+
+        if (isset($username, $password)) {
+            $authentication = base64_encode("{$username}:{$password}");
+            $headers['Authorization'] = "Basic {$authentication}";
         }
 
-        return $a + $b;
+        parent::__construct($uri, $headers);
     }
 }

@@ -35,6 +35,9 @@ class Client
     private static $CONTENT_TYPE = 'application/json';
 
     /** @var string */
+    private static $CONNECTION_TYPE = 'close';
+
+    /** @var string */
     private $uri;
 
     /** @var array */
@@ -75,6 +78,7 @@ class Client
 
         $headers['Accept'] = self::$CONTENT_TYPE;
         $headers['Content-Type'] = self::$CONTENT_TYPE;
+        $headers['Connection'] = self::$CONNECTION_TYPE;
 
         return $headers;
     }
