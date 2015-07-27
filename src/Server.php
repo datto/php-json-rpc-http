@@ -41,7 +41,10 @@ class Server
     /** @var callable */
     private $interpreter;
 
-    public function __construct(callable $interpreter)
+    /**
+     * @param callable $interpreter
+     */
+    public function __construct($interpreter)
     {
         $this->interpreter = $interpreter;
     }
