@@ -22,43 +22,22 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Examples\Custom;
+namespace Datto\JsonRpc\Http\Examples\Authentication\Basic;
 
 use Datto\JsonRpc;
 use Datto\JsonRpc\Http;
-use Datto\JsonRpc\Http\Examples\Math;
 
 class Server extends Http\Server
 {
-    public function __construct()
-    {
-        $interpreter = array($this, 'getCallable');
+    private static $realm = 'My Realm';
 
-        parent::__construct($interpreter);
-    }
-
-    public function cmdAdd($a, $b)
+    public function reply()
     {
-        // Allow unauthenticated requests
-        return Math::add($a, $b);
-    }
-
-    public function cmdSubtract($arguments)
-    {
-        // Require authentication
         if (!self::isAuthenticated()) {
             self::errorUnauthenticated();
         }
 
-        $minuend = @$arguments['minuend'];
-        $subtrahend = @$arguments['subtrahend'];
-
-        return Math::subtract($minuend, $subtrahend);
-    }
-
-    public function getCallable($method)
-    {
-        return array($this, 'cmd' . ucfirst($method));
+        parent::reply();
     }
 
     private static function isAuthenticated()
@@ -71,7 +50,7 @@ class Server extends Http\Server
 
     private static function errorUnauthenticated()
     {
-        header('WWW-Authenticate: Basic realm="My Realm"');
+        header('WWW-Authenticate: Basic realm="'. self::$realm . '"');
         header('HTTP/1.1 401 Unauthorized');
         exit();
     }

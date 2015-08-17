@@ -22,28 +22,20 @@
  * @copyright 2015 Datto, Inc.
  */
 
-require __DIR__ . '/../../../vendor/autoload.php';
+namespace Datto\JsonRpc\Http\Examples\Authentication\Basic;
 
-use Datto\JsonRpc\Http\Examples\Basic\Client;
+use Datto\JsonRpc\Http;
 
+class Client extends Http\Client
+{
+    public function __construct($uri, $username, $password)
+    {
+        $authentication = base64_encode("{$username}:{$password}");
 
-# Valid Credentials
+        $headers = array(
+            'Authorization' => "Basic {$authentication}"
+        );
 
-$client = new Client('http://json-rpc-http/authentication/basic/server.php', 'username', 'password');
-
-$client->query(1, 'add', array(1, 2));
-
-$reply = $client->send();
-
-print_r($reply); // array('jsonrpc' => '2.0', 'id' => 1, 'result' => 3)
-
-
-# Invalid credentials
-
-$client = new Client('http://json-rpc-http/authentication/basic/server.php', 'invalid', 'invalid');
-
-$client->query(1, 'add', array(1, 2));
-
-$reply = $client->send();
-
-var_dump($reply); // null
+        parent::__construct($uri, $headers);
+    }
+}

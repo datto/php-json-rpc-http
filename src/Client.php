@@ -26,6 +26,11 @@ namespace Datto\JsonRpc\Http;
 
 use Datto\JsonRpc;
 
+/**
+ * Class Client
+ *
+ * @package Datto\JsonRpc\Http
+ */
 class Client
 {
     /** @var string */

@@ -31,9 +31,7 @@ $reply = $client->send();
 ### Server
 
 ```php
-$translator = new Translator();
-
-$server = new Server($translator);
+$server = new Server(new Api());
 
 $server->reply();
 ```
@@ -52,18 +50,17 @@ by inserting a line into the "require" section of your "composer.json" file:
 ## Getting started
 
 1. Try the examples! Follow the README file in the "examples" directory to
-set up a development web environment. Then run the examples from the project directory
+set up a development web environment. Run the examples from the project directory
 like this:
 	```
 	php examples/client.php
 	```
 
 2. Once your example is working, replace the
-[example "Server" code](https://github.com/datto/php-json-rpc-http/tree/master/examples/Server)
+[example "src" code](https://github.com/datto/php-json-rpc-http/tree/master/examples/src)
 with your own code.
 
-3. Write a beautiful wrapper around the JSON-RPC client class that will dovetail
-with your project.
+3. Use your new API in a project.
 
 
 ## Author

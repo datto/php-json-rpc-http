@@ -25,6 +25,7 @@
 namespace Datto\JsonRpc\Http;
 
 use Datto\JsonRpc;
+use Datto\JsonRpc\Evaluator;
 
 /**
  * Class Server
@@ -33,20 +34,19 @@ use Datto\JsonRpc;
  *
  * @package Datto\JsonRpc\Http
  */
-
 class Server
 {
     private static $CONTENT_TYPE = 'application/json';
 
-    /** @var callable */
-    private $interpreter;
+    /** @var Evaluator */
+    private $evaluator;
 
     /**
-     * @param callable $interpreter
+     * @param Evaluator $evaluator
      */
-    public function __construct($interpreter)
+    public function __construct($evaluator)
     {
-        $this->interpreter = $interpreter;
+        $this->evaluator = $evaluator;
     }
 
     public function reply()
@@ -61,7 +61,8 @@ class Server
             self::errorInvalidBody();
         }
 
-        $server = new JsonRpc\Server($this->interpreter);
+        $server = new JsonRpc\Server($this->evaluator);
+
         $reply = $server->reply($message);
 
         if ($reply === null) {
@@ -87,6 +88,12 @@ class Server
         exit();
     }
 
+    /**
+     * Sends a text value as the body of an HTTP/1.1 "200 OK" response.
+     *
+     * @param string $content
+     * String value that will be sent as the body of the HTTP request.
+     */
     private static function successContent($content)
     {
         header('HTTP/1.1 200 OK');
@@ -96,6 +103,18 @@ class Server
         exit();
     }
 
+    /**
+     * Sends an error response.
+     *
+     * @param int $code
+     * Integer representing the HTTP/1.1 error code.
+     *
+     * @param string $title
+     * String representing the HTTP/1.1 error name.
+     *
+     * @param string $description
+     * Detailed explanation of the error.
+     */
     private static function error($code, $title, $description)
     {
         header("HTTP/1.1 {$code} {$title}");
