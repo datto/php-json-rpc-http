@@ -51,11 +51,15 @@ class Client
     /** @var JsonRpc\Client */
     private $client;
 
-    public function __construct($uri, $headers = null)
+    /** @var array */
+    private $options;
+
+    public function __construct($uri, $headers = null, $options = null)
     {
         $this->uri = $uri;
         $this->headers = self::getHeaders($headers);
         $this->client = new JsonRpc\Client();
+        $this->options = $options;
     }
 
     public function notify($method, $arguments = null)
@@ -120,6 +124,10 @@ class Client
                 'content' => $content
             )
         );
+
+        if (is_array($this->options)) {
+            $options = array_merge_recursive($options, $this->options);
+        }
 
         $context = stream_context_create($options);
         $reply = @file_get_contents($this->uri, false, $context);
