@@ -1,4 +1,4 @@
-# Example: unauthenticated server
+# Simple Server
 
 This example creates a simple API, where the client queries a remote server
 over HTTP(S) without authentication.
@@ -48,8 +48,8 @@ sudo a2ensite json-rpc-http
 sudo service apache2 reload
 ```
 
-Finally, make the URL resolve on your development environment by editing your
-"hosts" file:
+Finally, make the address resolve on your development environment by editing
+your "hosts" file:
 
 `sudo gedit /etc/hosts`
 ```

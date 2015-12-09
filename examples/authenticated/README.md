@@ -1,6 +1,6 @@
-# Example: unauthenticated server
+# Authenticated Server
 
-This example creates a simple API, where the client queries a remote server
+This example creates an authenticated API, where the client queries a remote server
 over HTTP(S) using [basic access authentication](https://en.wikipedia.org/wiki/Basic_access_authentication).
 
 Take a look at the "src" directory: This is the code that you would write
