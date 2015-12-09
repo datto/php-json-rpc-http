@@ -48,18 +48,25 @@ class Client
     /** @var array */
     private $headers;
 
+    /** @var resource */
+    private $context;
+
     /** @var JsonRpc\Client */
     private $client;
 
-    /** @var array */
-    private $options;
-
     public function __construct($uri, $headers = null, $options = null)
     {
+        $headers = self::validHeaders($headers);
+        $options = self::validOptions($options);
+        $context = self::getContext($options);
+        $client = new JsonRpc\Client();
+
+        self::setHttpOptions($headers, $context);
+
         $this->uri = $uri;
-        $this->headers = self::getHeaders($headers);
-        $this->client = new JsonRpc\Client();
-        $this->options = $options;
+        $this->headers = $headers;
+        $this->context = $context;
+        $this->client = $client;
     }
 
     public function notify($method, $arguments = null)
@@ -75,19 +82,41 @@ class Client
     public function send()
     {
         $content = $this->client->encode();
-        $reply = $this->execute(self::$METHOD, $this->headers, $content);
+        $reply = $this->execute($content);
         return $this->client->decode($reply);
     }
 
-    private static function getHeaders($headers)
+    private function execute($content)
+    {
+        $headers = $this->headers;
+        $headers['Content-Length'] = strlen($content);
+        $header = self::getHeader($headers);
+
+        $options = array(
+            'http' => array(
+                'header' => $header,
+                'content' => $content
+            )
+        );
+
+        if (!stream_context_set_option($this->context, $options)) {
+            return null;
+        }
+
+        $reply = @file_get_contents($this->uri, false, $this->context);
+
+        if ($reply === false) {
+            $reply = null;
+        }
+
+        return $reply;
+    }
+
+    private static function validHeaders($headers)
     {
         if (!self::isValidHeaders($headers)) {
             $headers = array();
         }
-
-        $headers['Accept'] = self::$CONTENT_TYPE;
-        $headers['Content-Type'] = self::$CONTENT_TYPE;
-        $headers['Connection'] = self::$CONNECTION_TYPE;
 
         return $headers;
     }
@@ -98,8 +127,8 @@ class Client
             return false;
         }
 
-        foreach ($input as $name => $value) {
-            if (!is_string($name) || (strlen($name) === 0)) {
+        foreach ($input as $key => $value) {
+            if (!is_string($key) || (strlen($key) === 0)) {
                 return false;
             }
 
@@ -111,35 +140,41 @@ class Client
         return true;
     }
 
-    private function execute($method, $headers, $content)
+    private static function validOptions($options)
     {
-        $headers['Content-Length'] = strlen($content);
+        if (!is_array($options)) {
+            return array();
+        }
 
-        $header = self::formatHeader($headers);
-
-        $options = array(
-            'http' => array(
-                'method' => $method,
-                'header' => $header,
-                'content' => $content
-            )
+        $supportedOptions = array(
+            'http' => true,
+            'ssl' => true
         );
 
-        if (is_array($this->options)) {
-            $options = array_merge_recursive($options, $this->options);
-        }
-
-        $context = stream_context_create($options);
-        $reply = @file_get_contents($this->uri, false, $context);
-
-        if ($reply === false) {
-            $reply = null;
-        }
-
-        return $reply;
+        return array_intersect_key($options, $supportedOptions);
     }
 
-    private static function formatHeader($headers)
+    private static function getContext($options)
+    {
+        $context = @stream_context_create($options);
+
+        if (!is_resource($context)) {
+            return stream_context_create();
+        }
+
+        return $context;
+    }
+
+    private static function setHttpOptions(&$headers, &$context)
+    {
+        $headers['Accept'] = self::$CONTENT_TYPE;
+        $headers['Content-Type'] = self::$CONTENT_TYPE;
+        $headers['Connection'] = self::$CONNECTION_TYPE;
+
+        stream_context_set_option($context, 'http', 'method', self::$METHOD);
+    }
+
+    private static function getHeader($headers)
     {
         $header = '';
 
