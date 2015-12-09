@@ -24,7 +24,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Datto\\JsonRpc\\Http\\Examples\\": "examples/src"
+            "Datto\\JsonRpc\\Http\\Examples\\Authenticated\\": "examples/authenticated/src",
+            "Datto\\JsonRpc\\Http\\Examples\\Simple\\": "examples/simple/src"
         }
     }
 }

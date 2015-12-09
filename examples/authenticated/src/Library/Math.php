@@ -22,20 +22,21 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Examples\Authentication\Basic;
+namespace Datto\JsonRpc\Http\Examples\Authenticated\Library;
 
-use Datto\JsonRpc\Http;
-
-class Client extends Http\Client
+class Math
 {
-    public function __construct($uri, $username, $password)
+    /**
+     * Returns the value $a + $b.
+     *
+     * @param int $a
+     * @param int $b
+     *
+     * @return int
+     * Returns the value $a + $b.
+     */
+    public static function add($a, $b)
     {
-        $authentication = base64_encode("{$username}:{$password}");
-
-        $headers = array(
-            'Authorization' => "Basic {$authentication}"
-        );
-
-        parent::__construct($uri, $headers);
+        return $a + $b;
     }
 }

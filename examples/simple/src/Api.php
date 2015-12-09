@@ -1,10 +1,10 @@
 <?php
 
-namespace Datto\JsonRpc\Http\Examples;
+namespace Datto\JsonRpc\Http\Examples\Simple;
 
 use Datto\JsonRpc\Evaluator;
 use Datto\JsonRpc\Exception;
-use Datto\JsonRpc\Http\Examples\Library\Math;
+use Datto\JsonRpc\Http\Examples\Simple\Library\Math;
 
 class Api implements Evaluator
 {

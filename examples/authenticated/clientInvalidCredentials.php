@@ -22,21 +22,26 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Examples\Library;
+require __DIR__ . '/../../vendor/autoload.php';
 
-class Math
-{
-    /**
-     * Returns the value $a + $b.
-     *
-     * @param int $a
-     * @param int $b
-     *
-     * @return int
-     * Returns the value $a + $b.
-     */
-    public static function add($a, $b)
-    {
-        return $a + $b;
-    }
-}
+use Datto\JsonRpc\Http\Examples\Authenticated\BasicAuthentication\Client;
+
+
+$url = 'http://json-rpc-http/authenticated/server.php';
+
+// Provide an invalid username and password:
+$username = 'invalid';
+$password = 'invalid';
+
+// Construct a client that can query your remote server over HTTP(S):
+$client = new Client($url, $username, $password);
+
+// Add the numbers "1" and "2":
+$client->query(1, 'add', array(1, 2));
+
+// Receive a null response:
+var_dump($client->send());
+
+/*
+NULL
+*/

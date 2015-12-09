@@ -22,30 +22,31 @@
  * @copyright 2015 Datto, Inc.
  */
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
-use Datto\JsonRpc\Http\Examples\Authentication\Basic\Client;
+use Datto\JsonRpc\Http\Examples\Authenticated\BasicAuthentication\Client;
 
 
-# With valid credentials:
+$url = 'http://json-rpc-http/authenticated/server.php';
 
-$client = new Client('http://json-rpc-http/basicAuthServer.php', 'username', 'password');
+// Provide a valid username and password:
+$username = 'username';
+$password = 'password';
 
+// Construct a client that can query your remote server over HTTP(S):
+$client = new Client($url, $username, $password);
+
+// Add the numbers "1" and "2":
 $client->query(1, 'add', array(1, 2));
 
-$reply = $client->send();
+// Receive the number "3":
+print_r($client->send());
 
-echo "With valid credentials:\n";
-print_r($reply); // array('jsonrpc' => '2.0', 'id' => 1, 'result' => 3)
-
-
-# With invalid credentials:
-
-$client = new Client('http://json-rpc-http/authentication/basic/server.php', 'invalid', 'invalid');
-
-$client->query(1, 'add', array(1, 2));
-
-echo "\n\nWith invalid credentials:\n";
-$reply = $client->send();
-
-var_dump($reply); // null
+/*
+Array
+(
+    [jsonrpc] => 2.0
+    [id] => 1
+    [result] => 3
+)
+*/

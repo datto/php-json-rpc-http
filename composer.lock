@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3166354f976f56c3c57fce0a4e11c393",
+    "hash": "a507b9ee0f54b4673e21ee365762cc49",
+    "content-hash": "ffc342a31cb9a48eaeaa1adfe579e7a4",
     "packages": [
         {
             "name": "datto/json-rpc",

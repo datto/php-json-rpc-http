@@ -49,16 +49,10 @@ by inserting a line into the "require" section of your "composer.json" file:
 
 ## Getting started
 
-1. Try the examples! Follow the README file in the "examples" directory to
-set up a development web environment. Run the examples from the project directory
-like this:
-	```
-	php examples/client.php
-	```
+1. Try the examples! Look in the "examples" directory and follow the README
+instructions.
 
-2. Once your example is working, replace the
-[example "src" code](https://github.com/datto/php-json-rpc-http/tree/master/examples/src)
-with your own code.
+2. Once your example is working, replace the "src" code with your own code!
 
 3. Use your new API in a project.
 
