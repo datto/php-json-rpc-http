@@ -50,7 +50,7 @@ $server = new Server($api);
 $server->reply();
 ```
 
-*See the "examples" folder for ready-to-use examples.*
+*See the "examples" folder for more examples.*
 
 
 ## Requirements
@@ -75,12 +75,13 @@ by inserting a line into the "require" section of your "composer.json" file:
 
 ## Getting started
 
-1. Try the examples! Look in the "examples" directory and follow the README
+1. Try the examples: Look in the "examples" directory and follow the README
 instructions.
 
-2. Once your example is working, replace the "src" code with your own code!
+2. After you've successfully run an example, replace the example "src" code
+with your own code.
 
-3. Use your new API in a project.
+3. Call the new API from within your own project!
 
 
 ## Author
