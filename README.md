@@ -1,20 +1,32 @@
 # JSON-RPC for PHP
 
+## Overview
+
+This package allows you to set up a JSON-RPC client and/or server over HTTP(S),
+using your own PHP code to evaluate the requests.
+
+This package abstracts away the details of the JSON-RPC messaging format and
+the HTTP(S) headers that are necessary for the client and server to communicate
+successfully.
+
+You're free to use your own library to handle the requests. Likewise, you're free
+to route requests to your server endpoint through any system that you prefer!
+(See the "examples" folder for ready-to-use examples.)
+
+This package allows you to communicate with a URL endpoint: If don't need to
+send or receive HTTP(S) headers, but just want to abstract away the internal
+JSON-RPC messaging format, then you should use the
+[php-json-rpc](https://github.com/datto/php-json-rpc) package instead.
+
+
 ## Features
 
-* Fully compliant with the [JSON-RPC 2.0 specifications](http://www.jsonrpc.org/specification) (with 100% unit-test coverage)
+* Correct: fully compliant with the [JSON-RPC 2.0 specifications](http://www.jsonrpc.org/specification)
+* Reliable: works in all environments (even when CURL is not installed)
 * Flexible: you can choose your own system for interpreting the JSON-RPC method strings
-* Dependable: works even when CURL is not installed
-* Minimalistic (just two tiny files)
+* Minimalistic: just two tiny files
 * Ready to use, with working examples
 
-## Requirements
-
-* PHP >= 5.3
-
-## License
-
-This package is released under an open-source license: [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html)
 
 ## Examples
 
@@ -31,12 +43,25 @@ $reply = $client->send();
 ### Server
 
 ```php
-$server = new Server(new Api());
+$api = new Api();
+
+$server = new Server($api);
 
 $server->reply();
 ```
 
 *See the "examples" folder for ready-to-use examples.*
+
+
+## Requirements
+
+* PHP >= 5.3
+
+
+## License
+
+This package is released under an open-source license: [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html)
+
 
 ## Installation
 
@@ -46,6 +71,7 @@ by inserting a line into the "require" section of your "composer.json" file:
 ```
         "datto/json-rpc-http": "~3.1"
 ```
+
 
 ## Getting started
 
