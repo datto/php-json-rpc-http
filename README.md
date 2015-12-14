@@ -1,4 +1,4 @@
-# JSON-RPC for PHP
+# JSON-RPC over HTTP(S) for PHP
 
 ## Overview
 
