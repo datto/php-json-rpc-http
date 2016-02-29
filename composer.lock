@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a507b9ee0f54b4673e21ee365762cc49",
-    "content-hash": "ffc342a31cb9a48eaeaa1adfe579e7a4",
+    "hash": "0fc816455c5b406e4f0548ccfadc5559",
+    "content-hash": "6920555413065e76bafe2978a711256a",
     "packages": [
         {
             "name": "datto/json-rpc",
-            "version": "3.0.0",
+            "version": "4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/datto/php-json-rpc.git",
-                "reference": "e1e71236621ea0e885e7cc6299732189ee46852e"
+                "reference": "35b0d30979d229ae8991e60e260daa7407f781b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/datto/php-json-rpc/zipball/e1e71236621ea0e885e7cc6299732189ee46852e",
-                "reference": "e1e71236621ea0e885e7cc6299732189ee46852e",
+                "url": "https://api.github.com/repos/datto/php-json-rpc/zipball/35b0d30979d229ae8991e60e260daa7407f781b4",
+                "reference": "35b0d30979d229ae8991e60e260daa7407f781b4",
                 "shasum": ""
             },
             "require": {
@@ -55,7 +55,7 @@
                 "php-json-rpc",
                 "rpc"
             ],
-            "time": "2015-08-17 22:34:18"
+            "time": "2016-02-29 20:08:22"
         }
     ],
     "packages-dev": [],
