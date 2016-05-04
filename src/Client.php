@@ -68,11 +68,11 @@ class Client
      * An associative array of the raw HTTP headers that you'd like to send
      * with your request. (Note that the CONTENT_TYPE, CONNECTION_TYPE, and
      * METHOD headers are required, so these headers are set automatically
-     * for you!)
+     * for you.)
      *
      * Example:
      * $headers = array(
-     *     'Authorization' => 'Basic YmFzaWM6YXV0aGVudGljYXRpb24='
+     *   'Authorization' => 'Basic YmFzaWM6YXV0aGVudGljYXRpb24='
      * );
      *
      * @param null|array $options
@@ -80,14 +80,13 @@ class Client
      *
      * Example:
      * $options = array(
-     *     'http' => array(
-     *         'timeout' => 5
-     *         )
-     *     ),
-     *     'ssl' => array(
-     *         'verify_peer' => false,
-     *         'verify_peer_name' => false
-     *      )
+     *   'http' => array(
+     *     'timeout' => 5
+     *   ),
+     *   'ssl' => array(
+     *     'verify_peer' => false,
+     *     'verify_peer_name' => false
+     *   )
      * );
      *
      * See:
