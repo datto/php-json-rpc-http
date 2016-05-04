@@ -1,0 +1,25 @@
+{
+    "name": "datto/json-rpc-http-simple-example",
+    "type": "library",
+    "description": "A simple example of the \"json-rpc-http\" library in action",
+    "keywords": ["JSON-RPC", "HTTP", "example", "simple"],
+    "homepage": "http://datto.com",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Spencer Mortensen",
+            "email": "smortensen@datto.com",
+            "homepage": "http://spencermortensen.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "datto/json-rpc-http": "~3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Datto\\JsonRpc\\Http\\Examples\\Simple\\": "src"
+        }
+    }
+}

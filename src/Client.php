@@ -54,6 +54,46 @@ class Client
     /** @var JsonRpc\Client */
     private $client;
 
+    /**
+     * Construct a JSON-RPC 2.0 client. This will allow you to send queries
+     * to a remote server.
+     *
+     * @param string $uri
+     * Address of your JSON-RPC 2.0 endpoint.
+     *
+     * Example:
+     * $uri = "https://api.example.com";
+     *
+     * @param null|array $headers
+     * An associative array of the raw HTTP headers that you'd like to send
+     * with your request. (Note that the CONTENT_TYPE, CONNECTION_TYPE, and
+     * METHOD headers are required, so these headers are set automatically
+     * for you!)
+     *
+     * Example:
+     * $headers = array(
+     *     'Authorization' => 'Basic YmFzaWM6YXV0aGVudGljYXRpb24='
+     * );
+     *
+     * @param null|array $options
+     * An associative array of the PHP stream context options that you'd use.
+     *
+     * Example:
+     * $options = array(
+     *     'http' => array(
+     *         'timeout' => 5
+     *         )
+     *     ),
+     *     'ssl' => array(
+     *         'verify_peer' => false,
+     *         'verify_peer_name' => false
+     *      )
+     * );
+     *
+     * See:
+     * @link http://php.net/manual/en/context.http.php HTTP context options
+     * @link http://php.net/manual/en/context.ssl.php SSL context options
+     */
     public function __construct($uri, $headers = null, $options = null)
     {
         $headers = self::validHeaders($headers);

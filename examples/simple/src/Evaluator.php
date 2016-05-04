@@ -22,30 +22,30 @@
  * @copyright 2015 Datto, Inc.
  */
 
-require __DIR__ . '/vendor/autoload.php';
+namespace Datto\JsonRpc\Http\Examples\Simple;
 
-use Datto\JsonRpc\Http\Examples\Authenticated\Client;
+use Datto\JsonRpc;
+use Datto\JsonRpc\Exception;
 
-$url = 'http://json-rpc-http/authenticated/server.php';
+class Evaluator implements JsonRpc\Evaluator
+{
+    public function evaluate($method, $arguments)
+    {
+        if ($method === 'add') {
+            return self::add($arguments);
+        }
 
-// Provide a valid username and password:
-$username = 'username';
-$password = 'password';
+        throw new Exception\Method();
+    }
 
-// Construct a client that can query your remote server over HTTP(S):
-$client = new Client($url, $username, $password);
+    private static function add($arguments)
+    {
+        @list($a, $b) = $arguments;
 
-// Add the numbers "1" and "2":
-$client->query(1, 'add', array(1, 2));
+        if (!is_int($a) || !is_int($b)) {
+            throw new Exception\Argument();
+        }
 
-// Receive the number "3":
-print_r($client->send());
-
-/*
-Array
-(
-    [jsonrpc] => 2.0
-    [id] => 1
-    [result] => 3
-)
-*/
+        return Math::add($a, $b);
+    }
+}

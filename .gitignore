@@ -1,5 +1,7 @@
-.git/
-vendor/
-coverage/
-.idea/
-.source
+/.idea/
+/examples/authenticated/vendor/
+/examples/authenticated/composer.lock
+/examples/simple/vendor/
+/examples/simple/composer.lock
+/vendor/
+/.source

@@ -1,11 +1,11 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Server;
-use Datto\JsonRpc\Http\Examples\Simple\Api;
+use Datto\JsonRpc\Http\Examples\Simple\Evaluator;
 
-
-$server = new Server(new Api());
+$evaluator = new Evaluator();
+$server = new Server($evaluator);
 
 $server->reply();

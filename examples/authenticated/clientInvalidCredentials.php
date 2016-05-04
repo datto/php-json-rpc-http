@@ -22,10 +22,9 @@
  * @copyright 2015 Datto, Inc.
  */
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-use Datto\JsonRpc\Http\Examples\Authenticated\BasicAuthentication\Client;
-
+use Datto\JsonRpc\Http\Examples\Authenticated\Client;
 
 $url = 'http://json-rpc-http/authenticated/server.php';
 

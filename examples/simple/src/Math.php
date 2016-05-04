@@ -22,36 +22,21 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http\Examples\Authenticated\BasicAuthentication;
+namespace Datto\JsonRpc\Http\Examples\Simple;
 
-use Datto\JsonRpc;
-use Datto\JsonRpc\Http;
-
-class Server extends Http\Server
+class Math
 {
-    private static $realm = 'My Realm';
-
-    public function reply()
+    /**
+     * Returns the value $a + $b.
+     *
+     * @param int $a
+     * @param int $b
+     *
+     * @return int
+     * Returns the value $a + $b.
+     */
+    public static function add($a, $b)
     {
-        if (!self::isAuthenticated()) {
-            self::errorUnauthenticated();
-        }
-
-        parent::reply();
-    }
-
-    private static function isAuthenticated()
-    {
-        $username = @$_SERVER['PHP_AUTH_USER'];
-        $password = @$_SERVER['PHP_AUTH_PW'];
-
-        return ($username === 'username') && ($password === 'password');
-    }
-
-    private static function errorUnauthenticated()
-    {
-        header('WWW-Authenticate: Basic realm="'. self::$realm . '"');
-        header('HTTP/1.1 401 Unauthorized');
-        exit();
+        return $a + $b;
     }
 }

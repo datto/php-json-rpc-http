@@ -1,9 +1,8 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Client;
-
 
 // Construct a client that can query your remote server over HTTP(S):
 $client = new Client('http://json-rpc-http/simple/server.php');

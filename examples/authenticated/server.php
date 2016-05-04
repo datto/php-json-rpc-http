@@ -1,11 +1,10 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
+namespace Datto\JsonRpc\Http\Examples\Authenticated;
 
-use Datto\JsonRpc\Http\Examples\Authenticated\BasicAuthentication\Server;
-use Datto\JsonRpc\Http\Examples\Authenticated\Api;
+require __DIR__ . '/vendor/autoload.php';
 
-
-$server = new Server(new Api());
+$evaluator = new Evaluator();
+$server = new Server($evaluator);
 
 $server->reply();
