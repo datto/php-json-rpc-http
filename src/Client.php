@@ -42,6 +42,9 @@ class Client
     /** @var string */
     private static $CONNECTION_TYPE = 'close';
 
+    /** @var array */
+    private $requiredHttpHeaders;
+
     /** @var string */
     private $uri;
 
@@ -67,8 +70,7 @@ class Client
      * @param null|array $headers
      * An associative array of the raw HTTP headers that you'd like to send
      * with your request. (Note that the CONTENT_TYPE, CONNECTION_TYPE, and
-     * METHOD headers are required, so these headers are set automatically
-     * for you.)
+     * METHOD headers are required, so these headers are automatically applied.)
      *
      * Example:
      * $headers = array(
@@ -81,11 +83,11 @@ class Client
      * Example:
      * $options = array(
      *   'http' => array(
-     *     'timeout' => 5
+     *       'timeout' => 5
      *   ),
      *   'ssl' => array(
-     *     'verify_peer' => false,
-     *     'verify_peer_name' => false
+     *       'verify_peer' => false,
+     *       'verify_peer_name' => false
      *   )
      * );
      *
@@ -95,12 +97,16 @@ class Client
      */
     public function __construct($uri, $headers = null, $options = null)
     {
-        $headers = self::validHeaders($headers);
+        $this->requiredHttpHeaders = array(
+            'Accept' => self::$CONTENT_TYPE,
+            'Content-Type' => self::$CONTENT_TYPE,
+            'Connection' => self::$CONNECTION_TYPE
+        );
+
+        $headers = array_merge(self::validHeaders($headers), $this->requiredHttpHeaders);
         $options = self::validOptions($options);
         $context = self::getContext($options);
         $client = new JsonRpc\Client();
-
-        self::setHttpOptions($headers, $context);
 
         $this->uri = $uri;
         $this->headers = $headers;
@@ -125,14 +131,84 @@ class Client
         return $this->client->decode($reply);
     }
 
+    /**
+     * View the HTTP headers that will be sent on each request.
+     *
+     * @return array
+     * An associative array containing the raw HTTP headers that will be sent
+     * with each request.
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Set add an additional HTTP header. This additional header will be sent
+     * on each future HTTP request.
+     *
+     * @param string $name
+     * The name of the HTTP header (e.g. "Authorization").
+     *
+     * @param string $value
+     * The value of this HTTP header (e.g. "Basic YmFzaWM6YXV0aGVudGljYXRpb24=").
+     *
+     * @return boolean
+     * True iff the header has been set successfully (or has had the desired
+     * value all along). Note that the CONTENT_TYPE, CONNECTION_TYPE, and
+     * METHOD headers cannot be changed, because those headers are required.
+     */
+    public function setHeader($name, $value)
+    {
+        if (!self::isValidHeader($name, $value)) {
+            return false;
+        }
+
+        if (isset($this->requiredHttpHeaders[$name])) {
+            return $this->requiredHttpHeaders[$name] === $value;
+        }
+
+        $this->headers[$name] = $value;
+
+        return true;
+    }
+
+    /**
+     * Unset an existing HTTP header. This HTTP header will no longer be sent
+     * on future requests.
+     *
+     * @param string $name
+     * The name of the HTTP header (e.g. "Authorization").
+     *
+     * @return boolean
+     * True iff the header was successfully removed (or was never set in the
+     * first place). Note that the CONTENT_TYPE, CONNECTION_TYPE, and METHOD
+     * headers are required, so those headers cannot be unset.
+     */
+    public function unsetHeader($name)
+    {
+        if (!self::isValidHeaderName($name)) {
+            return true;
+        }
+
+        if (isset($this->requiredHttpHeaders[$name])) {
+            return false;
+        }
+
+        unset($this->headers[$name]);
+
+        return true;
+    }
+
     private function execute($content)
     {
         $headers = $this->headers;
         $headers['Content-Length'] = strlen($content);
-        $header = self::getHeader($headers);
+        $header = self::getHeaderText($headers);
 
         $options = array(
             'http' => array(
+                'method' => self::$METHOD,
                 'header' => $header,
                 'content' => $content
             )
@@ -151,11 +227,6 @@ class Client
         return $reply;
     }
 
-    public function setHeaders($headers)
-    {
-        $this->headers = self::validHeaders($headers);
-    }
-
     private static function validHeaders($headers)
     {
         if (!self::isValidHeaders($headers)) {
@@ -171,17 +242,28 @@ class Client
             return false;
         }
 
-        foreach ($input as $key => $value) {
-            if (!is_string($key) || (strlen($key) === 0)) {
-                return false;
-            }
-
-            if (!is_string($value) || (strlen($value) === 0)) {
+        foreach ($input as $name => $value) {
+            if (!self::isValidHeader($name, $value)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static function isValidHeader($name, $value)
+    {
+        return self::isValidHeaderName($name) && self::isValidHeaderValue($value);
+    }
+
+    private static function isValidHeaderName($name)
+    {
+        return is_string($name) && (0 < strlen($name));
+    }
+
+    private static function isValidHeaderValue($value)
+    {
+        return is_string($value) && (0 < strlen($value));
     }
 
     private static function validOptions($options)
@@ -202,23 +284,14 @@ class Client
     {
         $context = @stream_context_create($options);
 
-        if (!is_resource($context)) {
-            return stream_context_create();
+        if (is_resource($context)) {
+            return $context;
         }
 
-        return $context;
+        return stream_context_create();
     }
 
-    private static function setHttpOptions(&$headers, &$context)
-    {
-        $headers['Accept'] = self::$CONTENT_TYPE;
-        $headers['Content-Type'] = self::$CONTENT_TYPE;
-        $headers['Connection'] = self::$CONNECTION_TYPE;
-
-        stream_context_set_option($context, 'http', 'method', self::$METHOD);
-    }
-
-    private static function getHeader($headers)
+    private static function getHeaderText($headers)
     {
         $header = '';
 
