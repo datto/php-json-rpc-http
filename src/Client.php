@@ -151,6 +151,11 @@ class Client
         return $reply;
     }
 
+    public function setHeaders($headers)
+    {
+        $this->headers = self::validHeaders($headers);
+    }
+
     private static function validHeaders($headers)
     {
         if (!self::isValidHeaders($headers)) {
