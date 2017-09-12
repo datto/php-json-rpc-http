@@ -26,7 +26,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Examples\Authenticated\Client;
 
-$url = 'http://json-rpc-http/authenticated/server.php';
+$url = 'http://localhost:8080/';
 
 // Provide a valid username and password:
 $username = 'username';

@@ -5,7 +5,7 @@ require __DIR__ . '/vendor/autoload.php';
 use Datto\JsonRpc\Http\Client;
 
 // Construct a client that can query your remote server over HTTP(S):
-$client = new Client('http://json-rpc-http/simple/server.php');
+$client = new Client('http://localhost:8080/');
 
 // Add the numbers "1" and "2":
 $client->query(1, 'add', array(1, 2));

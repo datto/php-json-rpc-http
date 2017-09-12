@@ -45,7 +45,11 @@ class Server extends Http\Server
         $username = @$_SERVER['PHP_AUTH_USER'];
         $password = @$_SERVER['PHP_AUTH_PW'];
 
+        // This is vulnerable to a timing attack, and stores the password in plaintext:
         return ($username === 'username') && ($password === 'password');
+
+        // The "password_verify" function would protect you from both of those issues:
+        // http://php.net/manual/en/function.password-verify.php
     }
 
     private static function errorUnauthenticated()

@@ -1,7 +1,4 @@
 /.idea/
-/examples/authenticated/vendor/
-/examples/authenticated/composer.lock
-/examples/simple/vendor/
-/examples/simple/composer.lock
-/vendor/
+vendor/
 /.source
+composer.lock
