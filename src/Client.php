@@ -78,13 +78,15 @@ class Client
      * );
      *
      * @param null|array $options
-     * An associative array of the PHP stream context options that you'd use.
+     * An associative array of the PHP stream context options that you'd like to use.
      *
      * Example:
      * $options = array(
+     *   # Set a timeout limit on the HTTP request:
      *   'http' => array(
      *       'timeout' => 5
      *   ),
+     *   # Disable SSL verification:
      *   'ssl' => array(
      *       'verify_peer' => false,
      *       'verify_peer_name' => false
@@ -196,7 +198,6 @@ class Client
         }
 
         unset($this->headers[$name]);
-
         return true;
     }
 
@@ -218,13 +219,21 @@ class Client
             return null;
         }
 
-        $reply = @file_get_contents($this->uri, false, $this->context);
+        set_error_handler(function () {});
+        $reply = file_get_contents($this->uri, false, $this->context);
+        restore_error_handler();
 
-        if ($reply === false) {
-            $reply = null;
+        if (is_string($reply)) {
+            return $reply;
         }
 
-        return $reply;
+        if (isset($http_response_header) && is_array($http_response_header)) {
+            $httpResponse = new HttpResponse($http_response_header);
+        } else {
+            $httpResponse = null;
+        }
+
+        throw new HttpException($httpResponse);
     }
 
     private static function validHeaders($headers)
@@ -282,7 +291,9 @@ class Client
 
     private static function getContext($options)
     {
-        $context = @stream_context_create($options);
+        set_error_handler(function () {});
+        $context = stream_context_create($options);
+        restore_error_handler();
 
         if (is_resource($context)) {
             return $context;
