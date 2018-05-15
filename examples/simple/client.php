@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Client;
 use Datto\JsonRpc\Http\HttpException;
@@ -25,9 +25,9 @@ try {
     )
     */
 } catch (HttpException $exception) {
-    echo "HttpException";
-
     $httpResponse = $exception->getHttpResponse();
+
+    echo "HttpException";
 
     if ($httpResponse === null) {
         echo " ";
@@ -39,4 +39,10 @@ try {
         echo " * headers: ", json_encode($httpResponse->getHeaders()), "\n";
         echo " * version: ", $httpResponse->getVersion(), "\n";
     }
+} catch (ErrorException $exception) {
+    $message = $exception->getMessage();
+
+    echo "ErrorException";
+    echo "\n";
+    echo " * message: {$message}\n";
 }

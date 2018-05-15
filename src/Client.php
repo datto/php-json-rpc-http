@@ -25,6 +25,7 @@
 namespace Datto\JsonRpc\Http;
 
 use Datto\JsonRpc;
+use ErrorException;
 
 /**
  * Class Client
@@ -97,7 +98,7 @@ class Client
      * @link http://php.net/manual/en/context.http.php HTTP context options
      * @link http://php.net/manual/en/context.ssl.php SSL context options
      */
-    public function __construct($uri, $headers = null, $options = null)
+    public function __construct($uri, array $headers = null, array $options = null)
     {
         $this->requiredHttpHeaders = array(
             'Accept' => self::$CONTENT_TYPE,
@@ -116,12 +117,12 @@ class Client
         $this->client = $client;
     }
 
-    public function notify($method, $arguments = null)
+    public function notify($method, array $arguments = null)
     {
         $this->client->notify($method, $arguments);
     }
 
-    public function query($id, $method, $arguments = null)
+    public function query($id, $method, array $arguments = null)
     {
         $this->client->query($id, $method, $arguments);
     }
@@ -216,24 +217,61 @@ class Client
         );
 
         if (!stream_context_set_option($this->context, $options)) {
-            return null;
+            $message = self::getFunctionMessage('stream_context_set_option', array($this->context, $options), false);
+            throw new ErrorException($message);
         }
 
-        set_error_handler(function () {});
-        $reply = file_get_contents($this->uri, false, $this->context);
-        restore_error_handler();
+        try {
+            set_error_handler(__CLASS__ . '::onError');
+            $reply = file_get_contents($this->uri, false, $this->context);
+            restore_error_handler();
 
-        if (is_string($reply)) {
-            return $reply;
+            if (!is_string($reply)) {
+                $message = self::getFunctionMessage('file_get_contents', array($this->uri, false, $this->context), $reply);
+                throw new ErrorException($message);
+            }
+        } catch (ErrorException $exception) {
+            restore_error_handler();
+
+            if (isset($http_response_header) && is_array($http_response_header) && (0 < count($http_response_header))) {
+                $httpResponse = new HttpResponse($http_response_header);
+                throw new HttpException($httpResponse);
+            }
+
+            throw $exception;
         }
 
-        if (isset($http_response_header) && is_array($http_response_header)) {
-            $httpResponse = new HttpResponse($http_response_header);
-        } else {
-            $httpResponse = null;
+        return $reply;
+    }
+
+    public static function getFunctionMessage($function, array $arguments, $result)
+    {
+        $argumentsPhp = implode(', ', array_map(__CLASS__ . '::getValuePhp', $arguments));
+        $resultPhp = self::getValuePhp($result);
+
+        return "{$function}({$argumentsPhp}): returned {$resultPhp}";
+    }
+
+    private static function getValuePhp($value)
+    {
+        if (is_null($value)) {
+            return 'null';
         }
 
-        throw new HttpException($httpResponse);
+        if (is_resource($value)) {
+            $id = (int)$value;
+            return "resource({$id})";
+        }
+
+        return var_export($value, true);
+    }
+
+    public static function onError($level, $message, $file, $line)
+    {
+        $message = trim($message);
+        $code = 0;
+
+        throw new ErrorException($message, $code, $level, $file, $line);
     }
 
     private static function validHeaders($headers)
@@ -291,7 +329,7 @@ class Client
 
     private static function getContext($options)
     {
-        set_error_handler(function () {});
+        set_error_handler(__CLASS__ . '::onError');
         $context = stream_context_create($options);
         restore_error_handler();
 
