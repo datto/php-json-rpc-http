@@ -1,6 +1,6 @@
 <?php
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(dirname(dirname(__DIR__))) . '/vendor/autoload.php';
 
 use Datto\JsonRpc\Http\Server;
 use Datto\JsonRpc\Http\Examples\Simple\Evaluator;

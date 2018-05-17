@@ -65,11 +65,10 @@ This package is released under an open-source license: [LGPL-3.0](https://www.gn
 
 ## Installation
 
-If you're using [Composer](https://getcomposer.org/), you can use this package
-([datto/json-rpc-http](https://packagist.org/packages/datto/json-rpc-http))
-by inserting a line into the "require" section of your "composer.json" file:
+If you're using [Composer](https://getcomposer.org/), you can include this library
+([datto/json-rpc-http](https://packagist.org/packages/datto/json-rpc-http)) like this:
 ```
-        "datto/json-rpc-http": "~3.2"
+composer require "datto/json-rpc-http": "~4.0"
 ```
 
 
@@ -82,6 +81,12 @@ instructions.
 with your own code.
 
 3. Call the new API from within your own project!
+
+
+## Changelog
+
+See what has changed:
+[Changelog](https://github.com/datto/php-json-rpc-http/blob/master/CHANGELOG.md)
 
 
 ## Author

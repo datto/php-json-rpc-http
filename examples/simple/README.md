@@ -6,18 +6,12 @@ over HTTP(S) without authentication.
 
 ## Run the example
 
-First, install the Composer dependencies. You should run this command inside
-the "simple" directory:
-```bash
-composer install
-```
-
-Now start the remote server:
+First, start the remote server:
 ```bash
 php -S localhost:8080 'bin/server.php'
 ```
 
-And run the example!
+Then run the example!
 
 ```bash
 php client.php

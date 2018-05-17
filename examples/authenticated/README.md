@@ -6,18 +6,12 @@ over HTTP(S) using [basic access authentication](https://en.wikipedia.org/wiki/B
 
 ## Run the examples
 
-First, install the Composer dependencies. You should run this command inside
-the "authenticated" directory:
-```bash
-composer install
-```
-
-Now start the remote server:
+First, start the remote server:
 ```bash
 php -S localhost:8080 'bin/server.php'
 ```
 
-And run the examples!
+Then run the examples!
 
 ```bash
 php clientInvalidCredentials.php

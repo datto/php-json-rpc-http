@@ -24,12 +24,12 @@
 
 namespace Datto\JsonRpc\Http;
 
-use Datto\JsonRpc;
+use Datto\JsonRpc\Client as JsonRpcClient;
+use Datto\JsonRpc\Response;
 use ErrorException;
 
 /**
  * Class Client
- *
  * @package Datto\JsonRpc\Http
  */
 class Client
@@ -55,7 +55,7 @@ class Client
     /** @var resource */
     private $context;
 
-    /** @var JsonRpc\Client */
+    /** @var JsonRpcClient */
     private $client;
 
     /**
@@ -109,7 +109,7 @@ class Client
         $headers = array_merge(self::validHeaders($headers), $this->requiredHttpHeaders);
         $options = self::validOptions($options);
         $context = self::getContext($options);
-        $client = new JsonRpc\Client();
+        $client = new JsonRpcClient();
 
         $this->uri = $uri;
         $this->headers = $headers;
@@ -117,16 +117,46 @@ class Client
         $this->client = $client;
     }
 
+    /**
+     * @param $method
+     * @param array|null $arguments
+     *
+     * @return self
+     * Returns the object handle, so you can chain method calls if you like
+     */
     public function notify($method, array $arguments = null)
     {
         $this->client->notify($method, $arguments);
+
+        return $this;
     }
 
+    /**
+     * @param $id
+     * @param $method
+     * @param array|null $arguments
+     *
+     * @return self
+     * Returns the object handle, so you can chain method calls if you like
+     */
     public function query($id, $method, array $arguments = null)
     {
         $this->client->query($id, $method, $arguments);
+
+        return $this;
     }
 
+    /**
+     * @return Response[]
+     * Returns an array of Response objects
+     *
+     * See:
+     * @link https://github.com/datto/php-json-rpc/blob/master/src/Response.php "Response" object
+     *
+     * @throws HttpException|ErrorException
+     * Throws an "HttpException" if the server responded with a failure HTTP status code
+     * Throws an "ErrorException" if an error occurred before an HTTP response could be received
+     */
     public function send()
     {
         $content = $this->client->encode();
@@ -244,7 +274,7 @@ class Client
         return $reply;
     }
 
-    public static function getFunctionMessage($function, array $arguments, $result)
+    private static function getFunctionMessage($function, array $arguments, $result)
     {
         $argumentsPhp = implode(', ', array_map(__CLASS__ . '::getValuePhp', $arguments));
         $resultPhp = self::getValuePhp($result);
