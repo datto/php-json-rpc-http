@@ -28,10 +28,10 @@ use Exception;
 
 class HttpException extends Exception
 {
-    /** @var HttpResponse|null */
+    /** @var HttpResponse */
     private $httpResponse;
 
-    public function __construct(HttpResponse $httpResponse = null)
+    public function __construct(HttpResponse $httpResponse)
     {
         parent::__construct();
 

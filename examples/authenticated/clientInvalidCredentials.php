@@ -49,13 +49,10 @@ try {
     $httpResponse = $exception->getHttpResponse();
 
     echo "HttpException\n";
-
-    if (isset($httpResponse)) {
-        echo " * statusCode: ", $httpResponse->getStatusCode(), "\n";
-        echo " * reason: ", $httpResponse->getReason(), "\n";
-        echo " * headers: ", json_encode($httpResponse->getHeaders()), "\n";
-        echo " * version: ", $httpResponse->getVersion(), "\n";
-    }
+    echo " * statusCode: ", $httpResponse->getStatusCode(), "\n";
+    echo " * reason: ", $httpResponse->getReason(), "\n";
+    echo " * headers: ", json_encode($httpResponse->getHeaders()), "\n";
+    echo " * version: ", $httpResponse->getVersion(), "\n";
 } catch (ErrorException $exception) {
     $message = $exception->getMessage();
 
@@ -65,11 +62,11 @@ try {
     echo "See \"README.md\" to set up this example\n";
 }
 
-/**
- * @param Response[] $responses
- */
 function printResponses(array $responses)
 {
+    /**
+     * @var Response[] $responses
+     */
     foreach ($responses as $response) {
         $id = $response->getId();
         $isError = $response->isError();

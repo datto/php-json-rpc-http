@@ -26,16 +26,16 @@ namespace Datto\JsonRpc\Http;
 
 class HttpResponse
 {
-    /** @var string|null */
+    /** @var string */
     private $version;
 
-    /** @var integer|null */
+    /** @var integer */
     private $statusCode;
 
-    /** @var string|null */
+    /** @var string */
     private $reason;
 
-    /** @var array|null */
+    /** @var array */
     private $headers;
 
     public function __construct(array $http_response_header)
