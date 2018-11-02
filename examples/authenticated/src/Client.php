@@ -28,6 +28,12 @@ use Datto\JsonRpc\Http;
 
 class Client extends Http\Client
 {
+    /**
+     * Client constructor.
+     * @param string $uri
+     * @param string $username
+     * @param string $password
+     */
     public function __construct($uri, $username, $password)
     {
         $authentication = base64_encode("{$username}:{$password}");

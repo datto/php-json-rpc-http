@@ -25,7 +25,8 @@
 namespace Datto\JsonRpc\Http\Examples\Simple;
 
 use Datto\JsonRpc;
-use Datto\JsonRpc\Exception;
+use Datto\JsonRpc\Exceptions\ArgumentException;
+use Datto\JsonRpc\Exceptions\MethodException;
 
 class Evaluator implements JsonRpc\Evaluator
 {
@@ -35,7 +36,7 @@ class Evaluator implements JsonRpc\Evaluator
             return self::add($arguments);
         }
 
-        throw new Exception\Method();
+        throw new MethodException();
     }
 
     private static function add($arguments)
@@ -43,7 +44,7 @@ class Evaluator implements JsonRpc\Evaluator
         @list($a, $b) = $arguments;
 
         if (!is_int($a) || !is_int($b)) {
-            throw new Exception\Argument();
+            throw new ArgumentException();
         }
 
         return Math::add($a, $b);

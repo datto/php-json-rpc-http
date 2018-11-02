@@ -8,11 +8,11 @@ over HTTP(S) using [basic access authentication](https://en.wikipedia.org/wiki/B
 
 First, start the remote server:
 ```bash
-php -S localhost:8080 'bin/server.php'
+cd examples/authenticated
+php -S localhost:8080 'server.php'
 ```
 
-Then run the examples!
-
+Then run the examples:
 ```bash
 php clientInvalidCredentials.php
 php clientValidCredentials.php

@@ -41,49 +41,53 @@ $client = new Client($url, $username, $password);
 $client->query(1, 'add', array(1, 2));
 
 try {
-    // Receive an array of server responses
+    // Send your request(s) to the remote server:
     $responses = $client->send();
-
-    printResponses($responses);
 } catch (HttpException $exception) {
     $httpResponse = $exception->getHttpResponse();
 
-    echo "HttpException\n";
-    echo " * statusCode: ", $httpResponse->getStatusCode(), "\n";
-    echo " * reason: ", $httpResponse->getReason(), "\n";
-    echo " * headers: ", json_encode($httpResponse->getHeaders()), "\n";
-    echo " * version: ", $httpResponse->getVersion(), "\n";
+    echo "HttpException\n",
+        " * statusCode: ", $httpResponse->getStatusCode(), "\n",
+        " * reason: ", $httpResponse->getReason(), "\n",
+        " * headers: ", json_encode($httpResponse->getHeaders()), "\n",
+        " * version: ", $httpResponse->getVersion(), "\n";
+
+    exit(1);
 } catch (ErrorException $exception) {
     $message = $exception->getMessage();
 
-    echo "ErrorException\n";
-    echo " * message: {$message}\n";
-    echo "\n";
-    echo "See \"README.md\" to set up this example\n";
+    echo "ErrorException\n",
+        " * message: {$message}\n",
+        "\n",
+        "See the \"README.md\" to set up this example!\n";
+
+    exit(1);
 }
 
-function printResponses(array $responses)
-{
-    /**
-     * @var Response[] $responses
-     */
-    foreach ($responses as $response) {
-        $id = $response->getId();
-        $isError = $response->isError();
+// View the results:
+/**
+ * @var Response[] $responses
+ */
+foreach ($responses as $response) {
+    $id = $response->getId();
 
-        if ($isError) {
-            $error = $response->getError();
-            $errorProperties = array(
-                'code' => $error->getCode(),
-                'message' => $error->getMessage(),
-                'data' => $error->getData()
-            );
+    echo "id: {$id}\n";
 
-            echo "id: {$id}, error: ", json_encode($errorProperties), "\n";
-        } else {
-            $result = $response->getResult();
+    if ($response->isError()) {
+        $error = $response->getError();
+        $code = $error->getCode();
+        $message = $error->getMessage();
+        $data = $error->getData();
 
-            echo "id: {$id}, result: ", json_encode($result), "\n";
-        }
+        echo " * error:\n",
+            "    * code: ", json_encode($code), "\n",
+            "    * message: ", json_encode($message), "\n",
+            "    * data: ", json_encode($data), "\n";
+    } else {
+        $result = $response->getResult();
+
+        echo " * result: ", json_encode($result), "\n";
     }
+
+    echo "\n";
 }

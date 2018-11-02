@@ -8,11 +8,11 @@ over HTTP(S) without authentication.
 
 First, start the remote server:
 ```bash
-php -S localhost:8080 'bin/server.php'
+cd examples/simple
+php -S localhost:8080 'server.php'
 ```
 
-Then run the example!
-
+Then run the example:
 ```bash
 php client.php
 ```

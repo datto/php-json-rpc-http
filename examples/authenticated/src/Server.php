@@ -24,7 +24,6 @@
 
 namespace Datto\JsonRpc\Http\Examples\Authenticated;
 
-use Datto\JsonRpc;
 use Datto\JsonRpc\Http;
 
 class Server extends Http\Server
@@ -42,13 +41,13 @@ class Server extends Http\Server
 
     private static function isAuthenticated()
     {
-        $username = @$_SERVER['PHP_AUTH_USER'];
-        $password = @$_SERVER['PHP_AUTH_PW'];
+        $username = &$_SERVER['PHP_AUTH_USER'];
+        $password = &$_SERVER['PHP_AUTH_PW'];
 
-        // This is vulnerable to a timing attack, and stores the password in plaintext:
         return ($username === 'username') && ($password === 'password');
 
-        // The "password_verify" function would protect you from both of those issues:
+        // This example uses a plaintext password, and is vulnerable to a timing attack.
+        // The "password_verify" function protects you from those issues:
         // http://php.net/manual/en/function.password-verify.php
     }
 
