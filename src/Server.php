@@ -51,7 +51,7 @@ class Server
 
     public function reply()
     {
-        if (@$_SERVER['CONTENT_TYPE'] !== self::$CONTENT_TYPE) {
+        if (!isset($_SERVER['CONTENT_TYPE']) || ($_SERVER['CONTENT_TYPE'] !== self::$CONTENT_TYPE)) {
             self::errorInvalidContentType();
         }
 

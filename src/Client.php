@@ -27,6 +27,7 @@ namespace Datto\JsonRpc\Http;
 use Datto\JsonRpc\Client as JsonRpcClient;
 use Datto\JsonRpc\Response;
 use ErrorException;
+use SpencerMortensen\Exceptions\Exceptions;
 
 /**
  * Class Client
@@ -160,8 +161,67 @@ class Client
     public function send()
     {
         $content = $this->client->encode();
-        $reply = $this->execute($content);
-        return $this->client->decode($reply);
+
+        $headers = $this->headers;
+        $headers['Content-Length'] = strlen($content);
+        $header = self::getHeaderText($headers);
+
+        $options = array(
+            'http' => array(
+                'method' => self::$METHOD,
+                'header' => $header,
+                'content' => $content
+            )
+        );
+
+        try {
+            Exceptions::on();
+
+            stream_context_set_option($this->context, $options);
+        } finally {
+            Exceptions::off();
+        }
+
+        try {
+            Exceptions::on();
+
+            $reply = file_get_contents($this->uri, false, $this->context);
+        } catch (ErrorException $exception) {
+            if ($this->getHttpResponse($http_response_header, $httpResponse)) {
+                throw new HttpException($httpResponse);
+            } else {
+                throw $exception;
+            }
+        } finally {
+            Exceptions::off();
+        }
+
+        if ($this->getHttpResponse($http_response_header, $httpResponse)) {
+            $statusCode = $httpResponse->getStatusCode();
+
+            if ($statusCode === 200) {
+                return $this->client->decode($reply);
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param array|null $header
+     * @param HttpResponse $response
+     *
+     * @return boolean
+     * True iff an HttpResponse is available.
+     */
+    private function getHttpResponse(&$header, &$response)
+    {
+        if (isset($header) && is_array($header) && (0 < count($header))) {
+            $response = new HttpResponse($header);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -232,78 +292,6 @@ class Client
         return true;
     }
 
-    private function execute($content)
-    {
-        $headers = $this->headers;
-        $headers['Content-Length'] = strlen($content);
-        $header = self::getHeaderText($headers);
-
-        $options = array(
-            'http' => array(
-                'method' => self::$METHOD,
-                'header' => $header,
-                'content' => $content
-            )
-        );
-
-        if (!stream_context_set_option($this->context, $options)) {
-            $message = self::getFunctionMessage('stream_context_set_option', array($this->context, $options), false);
-            throw new ErrorException($message);
-        }
-
-        try {
-            set_error_handler(__CLASS__ . '::onError');
-            $reply = file_get_contents($this->uri, false, $this->context);
-            restore_error_handler();
-
-            if (!is_string($reply)) {
-                $message = self::getFunctionMessage('file_get_contents', array($this->uri, false, $this->context), $reply);
-                throw new ErrorException($message);
-            }
-        } catch (ErrorException $exception) {
-            restore_error_handler();
-
-            if (isset($http_response_header) && is_array($http_response_header) && (0 < count($http_response_header))) {
-                $httpResponse = new HttpResponse($http_response_header);
-                throw new HttpException($httpResponse);
-            }
-
-            throw $exception;
-        }
-
-        return $reply;
-    }
-
-    private static function getFunctionMessage($function, array $arguments, $result)
-    {
-        $argumentsPhp = implode(', ', array_map(__CLASS__ . '::getValuePhp', $arguments));
-        $resultPhp = self::getValuePhp($result);
-
-        return "{$function}({$argumentsPhp}): returned {$resultPhp}";
-    }
-
-    private static function getValuePhp($value)
-    {
-        if (is_null($value)) {
-            return 'null';
-        }
-
-        if (is_resource($value)) {
-            $id = (int)$value;
-            return "resource({$id})";
-        }
-
-        return var_export($value, true);
-    }
-
-    public static function onError($level, $message, $file, $line)
-    {
-        $message = trim($message);
-        $code = 0;
-
-        throw new ErrorException($message, $code, $level, $file, $line);
-    }
-
     private static function validHeaders($headers)
     {
         if (!self::isValidHeaders($headers)) {
@@ -359,15 +347,13 @@ class Client
 
     private static function getContext($options)
     {
-        set_error_handler(__CLASS__ . '::onError');
-        $context = stream_context_create($options);
-        restore_error_handler();
+        try {
+            Exceptions::on();
 
-        if (is_resource($context)) {
-            return $context;
+            return stream_context_create($options);
+        } finally {
+            Exceptions::off();
         }
-
-        return stream_context_create();
     }
 
     private static function getHeaderText($headers)
