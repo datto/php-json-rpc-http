@@ -1,9 +1,9 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
+use Example\Evaluator;
 use Datto\JsonRpc\Http\Server;
-use Datto\JsonRpc\Http\Examples\Simple\Evaluator;
 
 $evaluator = new Evaluator();
 $server = new Server($evaluator);
