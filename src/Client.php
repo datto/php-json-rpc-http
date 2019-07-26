@@ -25,9 +25,9 @@
 namespace Datto\JsonRpc\Http;
 
 use Datto\JsonRpc\Client as JsonRpcClient;
-use Datto\JsonRpc\Response;
+use Datto\JsonRpc\Http\Exceptions\HttpException;
+use Datto\JsonRpc\Responses\ResultResponse;
 use ErrorException;
-use SpencerMortensen\Exceptions\Exceptions;
 
 /**
  * Class Client
@@ -59,6 +59,9 @@ class Client
     /** @var JsonRpcClient */
     private $client;
 
+    /** @var array */
+    private $responses;
+
     /**
      * Construct a JSON-RPC 2.0 client. This will allow you to send queries
      * to a remote server.
@@ -71,33 +74,45 @@ class Client
      *
      * @param null|array $headers
      * An associative array of the raw HTTP headers that you'd like to send
-     * with your request. (Note that the CONTENT_TYPE, CONNECTION_TYPE, and
-     * METHOD headers are required, so these headers are automatically applied.)
+     * with your request.
+     * 
+     * Note that the CONTENT_TYPE, CONNECTION_TYPE, and METHOD headers are
+     * automatically applied, since they are required for every request,
+     * so you don't need to add them.
+     * 
+     * You might need to add headers if you're using an authenticated API:
      *
-     * Example:
+     * Example 1. Add the header for basic access authentication:
+     * $authentication = base64_encode("{$username}:{$password}");
      * $headers = array(
-     *   'Authorization' => 'Basic YmFzaWM6YXV0aGVudGljYXRpb24='
+     *   'Authorization' => "Basic {$authentication}"
      * );
      *
      * @param null|array $options
      * An associative array of the PHP stream context options that you'd like to use.
+     * This can be useful if you'd like to customize the details of your connection.
      *
-     * Example:
+     * Example 1. Disable SSL verification (this might be useful for a development
+     * environment without a valid SSL certificate):
+     * 
      * $options = array(
-     *   # Set a timeout limit on the HTTP request:
-     *   'http' => array(
-     *       'timeout' => 5
-     *   ),
-     *   # Disable SSL verification:
      *   'ssl' => array(
      *       'verify_peer' => false,
      *       'verify_peer_name' => false
      *   )
      * );
+     * 
+     * @see http://php.net/manual/en/context.ssl.php SSL options
+     * 
+     * Example 2. Add an HTTP timeout limit (so queries won't hang forever):
+     * 
+     * $options = array(
+     *   'http' => array(
+     *       'timeout' => 5
+     *   )
+     * );
      *
-     * See:
-     * @link http://php.net/manual/en/context.http.php HTTP context options
-     * @link http://php.net/manual/en/context.ssl.php SSL context options
+     * @see http://php.net/manual/en/context.http.php HTTP options
      */
     public function __construct($uri, array $headers = null, array $options = null)
     {
@@ -116,16 +131,74 @@ class Client
         $this->headers = $headers;
         $this->context = $context;
         $this->client = $client;
+        $this->responses = [];
     }
 
     /**
-     * @param $method
-     * @param array|null $arguments
-     *
+     * Queue up a message! You can queue up any number of messages here.
+     * Then, when you're ready, call the "send" method to send all of the messages
+     * in a single HTTP(S) request.
+     * 
+     * Other APIs involve a long series of back-to-back roundtrips, but JSON-RPC
+     * allows you to get everything done in just one trip! This is wonderful for
+     * your latency.
+     * 
+     * @param string $method
+     * The method that you're calling on the remote server
+     * 
+     * @param array $arguments
+     * The arguments that you're supplying to the method
+     * 
+     * @param mixed $response
+     * After you've called this "query" method to queue up your message, call the
+     * "send" method to send your message. You'll see a value appear here,
+     * in this "$response" object (through the magic of pass by reference).
+     * 
+     * More than likely, you'll receive the raw value that you were expecting
+     * from the server. But, if the server was unable to successfully process
+     * your request, you could wind up with an "ErrorResponse" object instead:
+     * @see https://github.com/datto/php-json-rpc/tree/master/src/Responses/ErrorResponse ErrorResponse
+     * 
+     * But be sure to check the type of the "$response" before you use it!
+     * 
      * @return self
-     * Returns the object handle, so you can chain method calls if you like
+     * Returns the object handle (so you can chain method calls if you're into
+     * that kinky stuff)
      */
-    public function notify($method, array $arguments = null)
+    public function query($method, $arguments, &$response)
+    {
+        $id = count($this->responses);
+        $this->responses[$id] = &$response;
+        $this->client->query($id, $method, $arguments);
+
+        return $this;
+    }
+
+    /**
+     * Queue up a message! You can queue up any number of messages here.
+     * Then, when you're ready, call the "send" method to send all of the messages
+     * in a single HTTP(S) request.
+     * 
+     * Other APIs involve a long series of back-to-back roundtrips, but JSON-RPC
+     * allows you to get everything done in just one trip! This is wonderful for
+     * your latency.
+     * 
+     * This "notify" method sends a message to the server that does NOT need any
+     * response. When you don't need a response, this is more efficient than
+     * using the "query" method, since the server doesn't have to generate
+     * a response, and you don't have to wait for one.
+     * 
+     * @param string $method
+     * The method that you're calling on the remote server
+     * 
+     * @param array $arguments
+     * The arguments that you're supplying to the method
+     *  
+     * @return self
+     * Returns the object handle (so you can chain method calls if you're into
+     * that kinky stuff)
+     */
+    public function notify($method, array $arguments)
     {
         $this->client->notify($method, $arguments);
 
@@ -133,95 +206,49 @@ class Client
     }
 
     /**
-     * @param $id
-     * @param $method
-     * @param array|null $arguments
-     *
-     * @return self
-     * Returns the object handle, so you can chain method calls if you like
-     */
-    public function query($id, $method, array $arguments = null)
-    {
-        $this->client->query($id, $method, $arguments);
-
-        return $this;
-    }
-
-    /**
-     * @return Response[]
-     * Returns an array of Response objects
-     *
-     * See:
-     * @link https://github.com/datto/php-json-rpc/blob/master/src/Response.php "Response" object
-     *
+     * This method sends your requests over HTTP(S) to the remote server.
+     * 
      * @throws HttpException|ErrorException
-     * Throws an "HttpException" if the server responded with a failure HTTP status code
-     * Throws an "ErrorException" if an error occurred before an HTTP response could be received
+     * Throws an "HttpException" if the server responded with a failure HTTP status code.
+     * Throws an "ErrorException" if an error occurred before an HTTP response could be received.
      */
     public function send()
     {
-        $content = $this->client->encode();
-
-        $headers = $this->headers;
-        $headers['Content-Length'] = strlen($content);
-        $header = self::getHeaderText($headers);
-
-        $options = array(
-            'http' => array(
-                'method' => self::$METHOD,
-                'header' => $header,
-                'content' => $content
-            )
-        );
+        set_error_handler([__CLASS__, 'onError']);
 
         try {
-            Exceptions::on();
-
+            $options = $this->getStreamOptions();
             stream_context_set_option($this->context, $options);
-        } finally {
-            Exceptions::off();
-        }
+            $message = file_get_contents($this->uri, false, $this->context);
 
-        try {
-            Exceptions::on();
-
-            $reply = file_get_contents($this->uri, false, $this->context);
-        } catch (ErrorException $exception) {
-            if ($this->getHttpResponse($http_response_header, $httpResponse)) {
+            $httpResponse = HttpResponse::fromHttpResponseHeader($http_response_header);
+            $code = $httpResponse->getCode();
+    
+            if ($code !== 200) {
                 throw new HttpException($httpResponse);
-            } else {
-                throw $exception;
             }
+    
+            $this->deliverResponses($message);
+        } catch (ErrorException $exception) {
+            if (isset($http_response_header) && is_array($http_response_header) && (0 < count($http_response_header))) {
+                $httpResponse = HttpResponse::fromHttpResponseHeader($http_response_header);
+                throw new HttpException($httpResponse);
+            }
+
+            throw $exception;
         } finally {
-            Exceptions::off();
+            restore_error_handler();
         }
-
-        if ($this->getHttpResponse($http_response_header, $httpResponse)) {
-            $statusCode = $httpResponse->getStatusCode();
-
-            if ($statusCode === 200) {
-                return $this->client->decode($reply);
-            }
-        }
-
-        return [];
     }
 
     /**
-     * @param array|null $header
-     * @param HttpResponse $response
-     *
-     * @return boolean
-     * True iff an HttpResponse is available.
+     * Cancel any queries or notifications that you had previously queued:
+     * They will not be sent.
      */
-    private function getHttpResponse(&$header, &$response)
+    public function reset()
     {
-        if (isset($header) && is_array($header) && (0 < count($header))) {
-            $response = new HttpResponse($header);
-            return true;
-        }
-
-        return false;
+        $this->client->reset();
+        $this->responses = [];
     }
 
     /**
@@ -244,12 +271,12 @@ class Client
      * The name of the HTTP header (e.g. "Authorization").
      *
      * @param string $value
-     * The value of this HTTP header (e.g. "Basic YmFzaWM6YXV0aGVudGljYXRpb24=").
+     * The value of this HTTP header (e.g. "Basic dXNlcm5hbWU6cGFzc3dvcmQ=").
      *
      * @return boolean
      * True iff the header has been set successfully (or has had the desired
      * value all along). Note that the CONTENT_TYPE, CONNECTION_TYPE, and
-     * METHOD headers cannot be changed, because those headers are required.
+     * METHOD headers cannot be changed (because those headers are required).
      */
     public function setHeader($name, $value)
     {
@@ -262,7 +289,6 @@ class Client
         }
 
         $this->headers[$name] = $value;
-
         return true;
     }
 
@@ -347,16 +373,33 @@ class Client
 
     private static function getContext($options)
     {
-        try {
-            Exceptions::on();
+        set_error_handler([__CLASS__, 'onError']);
 
+        try {
             return stream_context_create($options);
         } finally {
-            Exceptions::off();
+            restore_error_handler();
         }
     }
 
-    private static function getHeaderText($headers)
+    private function getStreamOptions()
+    {
+        $content = $this->client->encode();
+
+        $headers = $this->headers;
+        $headers['Content-Length'] = strlen($content);
+        $header = $this->getHeaderText($headers);
+
+        return array(
+            'http' => array(
+                'method' => self::$METHOD,
+                'header' => $header,
+                'content' => $content
+            )
+        );        
+    }
+
+    private function getHeaderText($headers)
     {
         $header = '';
 
@@ -365,5 +408,41 @@ class Client
         }
 
         return $header;
+    }
+
+    private function deliverResponses(string $message)
+    {
+        $responses = $this->client->decode($message);
+
+        foreach ($responses as $response) {
+            $id = $response->getId();
+
+            if (!array_key_exists($id, $this->responses)) {
+                $idText = json_encode($id);
+                throw new ErrorException("Received a surprise response from the server with id {$idText}");
+            }
+
+            if ($response instanceof ResultResponse) {
+                $value = $response->getValue();
+            } else {
+                $value = $response;
+            }
+
+            $this->responses[$id] = $value;
+            unset($this->responses[$id]);
+        }
+
+        foreach ($this->responses as $id => $response) {
+            $idText = json_encode($id);
+            throw new ErrorException("Expected a response from the server with id {$idText}, but received nothing! Disappointed!");
+        }
+    }
+
+    public static function onError($level, $message, $file, $line)
+    {
+        $message = trim($message);
+        $code = null;
+
+        throw new ErrorException($message, $code, $level, $file, $line);
     }
 }

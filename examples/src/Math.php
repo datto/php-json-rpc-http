@@ -1,6 +1,6 @@
 <?php
 
-namespace Example;
+namespace Datto\JsonRpc\Http\Examples;
 
 class Math
 {

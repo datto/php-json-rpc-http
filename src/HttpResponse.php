@@ -30,46 +30,29 @@ class HttpResponse
     private $version;
 
     /** @var integer */
-    private $statusCode;
+    private $code;
 
     /** @var string */
-    private $reason;
+    private $message;
 
     /** @var array */
     private $headers;
 
-    public function __construct(array $http_response_header)
+    public static function fromHttpResponseHeader(array $http_response_header)
     {
         $statusLine = array_shift($http_response_header);
+        self::readVersionCodeMessage($statusLine, $version, $code, $message);
+        self::readHeaders($http_response_header, $headers);
 
-        $this->extractStatusLine($statusLine);
-        $this->extractHeaders($http_response_header);
+        return new self($version, $code, $message, $headers);
     }
 
-    private function extractStatusLine($input)
+    public function __construct(string $version, int $code, string $message, array $headers)
     {
-        $delimiter = "\x03";
-        $expression = 'HTTP/(?<version>[0-9.]+) (?<statusCode>[0-9]+) ?(?<reason>.*)';
-        $pattern = "{$delimiter}{$expression}{$delimiter}XDs";
-
-        if (preg_match($pattern, $input, $match) === 1) {
-            $this->version = $match['version'];
-            $this->statusCode = (integer)$match['statusCode'];
-            $this->reason = $match['reason'];
-        }
-    }
-
-    private function extractHeaders(array $input)
-    {
-        $this->headers = array();
-
-        foreach ($input as $header) {
-            list($name, $value) = explode(':', $header, 2);
-
-            $this->headers[$name] = trim($value);
-        }
-
-        return $this->headers;
+        $this->version = $version;
+        $this->code = $code;
+        $this->message = $message;
+        $this->headers = $headers;
     }
 
     public function getVersion()
@@ -77,18 +60,40 @@ class HttpResponse
         return $this->version;
     }
 
-    public function getStatusCode()
+    public function getCode()
     {
-        return $this->statusCode;
+        return $this->code;
     }
 
-    public function getReason()
+    public function getMessage()
     {
-        return $this->reason;
+        return $this->message;
     }
 
     public function getHeaders()
     {
         return $this->headers;
+    }
+
+    private static function readVersionCodeMessage($input, &$version, &$code, &$message)
+    {
+        if (preg_match("~HTTP/(?<version>[0-9.]+) (?<code>[0-9]+) ?(?<message>.*)~XDs", $input, $match) === 1) {
+            $version = $match['version'];
+            $code = (integer)$match['code'];
+            $message = $match['message'];
+        }
+    }
+
+    private static function readHeaders(array $http_response_header, &$headers)
+    {
+        $headers = array();
+
+        foreach ($http_response_header as $header) {
+            list($name, $value) = explode(':', $header, 2);
+
+            $headers[$name] = trim($value);
+        }
+
+        return $headers;
     }
 }

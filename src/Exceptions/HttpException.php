@@ -22,24 +22,25 @@
  * @copyright 2015 Datto, Inc.
  */
 
-namespace Datto\JsonRpc\Http;
+namespace Datto\JsonRpc\Http\Exceptions;
 
+use Datto\JsonRpc\Http\HttpResponse;
 use Exception;
 
 class HttpException extends Exception
 {
     /** @var HttpResponse */
-    private $httpResponse;
+    private $response;
 
-    public function __construct(HttpResponse $httpResponse)
+    public function __construct(HttpResponse $response)
     {
         parent::__construct();
 
-        $this->httpResponse = $httpResponse;
+        $this->response = $response;
     }
 
-    public function getHttpResponse()
+    public function getResponse()
     {
-        return $this->httpResponse;
+        return $this->response;
     }
 }

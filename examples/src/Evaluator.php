@@ -1,12 +1,12 @@
 <?php
 
-namespace Example;
+namespace Datto\JsonRpc\Http\Examples;
 
-use Datto\JsonRpc;
+use Datto\JsonRpc\Evaluator as JsonRpcEvaluator;
 use Datto\JsonRpc\Exceptions\ArgumentException;
 use Datto\JsonRpc\Exceptions\MethodException;
 
-class Evaluator implements JsonRpc\Evaluator
+class Evaluator implements JsonRpcEvaluator
 {
     public function evaluate($method, $arguments)
     {

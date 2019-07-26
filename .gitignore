@@ -2,3 +2,4 @@
 vendor/
 /.source
 composer.lock
+*.swp

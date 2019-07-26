@@ -1,10 +1,10 @@
 <?php
 
-namespace Example;
+namespace Datto\JsonRpc\Http\Examples;
 
-use Datto\JsonRpc\Http;
+use Datto\JsonRpc\Http\Server;
 
-class AuthenticatedServer extends Http\Server
+class AuthenticatedServer extends Server
 {
     private static $realm = 'My Realm';
 
@@ -19,8 +19,13 @@ class AuthenticatedServer extends Http\Server
 
     private static function isAuthenticated()
     {
-        $username = &$_SERVER['PHP_AUTH_USER'];
-        $password = &$_SERVER['PHP_AUTH_PW'];
+        $username = $_SERVER['PHP_AUTH_USER'] ?? null;
+        $password = $_SERVER['PHP_AUTH_PW'] ?? null;
+
+        // Allow the unathenticated examples to run:
+        if (!isset($username, $password)) {
+            return true;
+        }
 
         return ($username === 'username') && ($password === 'password');
 
