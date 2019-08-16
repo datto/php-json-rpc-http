@@ -1,7 +1,4 @@
-# Authenticated Server
-
-This example creates an API where the client queries a remote server over HTTP(S).
-
+# Examples
 
 ## Run the examples
 

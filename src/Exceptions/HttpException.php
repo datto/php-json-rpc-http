@@ -34,7 +34,9 @@ class HttpException extends Exception
 
     public function __construct(HttpResponse $response)
     {
-        parent::__construct();
+        $status = $this->getStatus($response);
+
+        parent::__construct($status);
 
         $this->response = $response;
     }
@@ -42,5 +44,17 @@ class HttpException extends Exception
     public function getResponse()
     {
         return $this->response;
+    }
+
+    private function getStatus(HttpResponse $response)
+    {
+        $code = $response->getCode();
+        $message = $response->getMessage();
+
+        if (strlen($message) === 0) {
+            return $code;
+        }
+
+        return "{$code} {$message}";
     }
 }
