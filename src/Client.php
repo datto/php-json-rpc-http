@@ -207,10 +207,12 @@ class Client
 
     /**
      * This method sends your requests over HTTP(S) to the remote server.
-     * 
-     * @throws HttpException|ErrorException
-     * Throws an "HttpException" if the server responded with a failure HTTP status code.
+     *
+     * @throws ErrorException
      * Throws an "ErrorException" if an error occurred before an HTTP response could be received.
+     *
+     * @throws HttpException
+     * Throws an "HttpException" if the server responded with a failure HTTP status code.
      */
     public function send()
     {
