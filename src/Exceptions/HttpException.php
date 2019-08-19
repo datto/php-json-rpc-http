@@ -41,7 +41,7 @@ class HttpException extends Exception
         $this->response = $response;
     }
 
-    public function getResponse()
+    public function getResponse(): HttpResponse
     {
         return $this->response;
     }
