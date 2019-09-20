@@ -223,24 +223,30 @@ class Client
             stream_context_set_option($this->context, $options);
             $message = file_get_contents($this->uri, false, $this->context);
 
-            $httpResponse = HttpResponse::fromHttpResponseHeader($http_response_header);
-            $code = $httpResponse->getCode();
-    
-            if ($code !== 200) {
-                throw new HttpException($httpResponse);
-            }
-    
+            $this->throwHttpExceptionOnHttpError($http_response_header);
             $this->deliverResponses($message);
         } catch (ErrorException $exception) {
-            if (isset($http_response_header) && is_array($http_response_header) && (0 < count($http_response_header))) {
-                $httpResponse = HttpResponse::fromHttpResponseHeader($http_response_header);
-                throw new HttpException($httpResponse);
-            }
-
+            $this->throwHttpExceptionOnHttpError($http_response_header);
             throw $exception;
         } finally {
             restore_error_handler();
         }
+    }
+
+    private function throwHttpExceptionOnHttpError($header)
+    {
+        if (!is_array($header) || (count($header) === 0)) {
+            return;
+        }
+
+        $response = HttpResponse::fromHttpResponseHeader($header);
+        $code = $response->getCode();
+
+        if ($code === 200) {
+            return;
+        }
+
+        throw new HttpException($response);
     }
 
     /**

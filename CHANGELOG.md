@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.0.3] - 2019-09-19
+### Changed
+ - In the past, when the client encounters a transmission error, after receiving
+   an HTTP response from the server, we would throw an HttpException containing
+   the HTTP response. However, if that response is an "HTTP 200" success response,
+   then we'd rather see the ErrorException, since that ErrorException is more
+   likely to help us troubleshoot. In this version, we'll continue to throw the
+   HttpException, unless the response is an "HTTP 200" success response,
+   in which case we'll throw the more useful ErrorException.
+
+## [5.0.2] - 2019-08-19
+ - No changes to the external behavior.
+
+## [5.0.1] - 2019-08-16
+ - No changes to the external behavior.
+
 ## [5.0.0] - 2019-07-26
 ### Added
  - The new "Client::reset" method allows you to abandon queries without sending
