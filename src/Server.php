@@ -51,7 +51,9 @@ class Server
 
     public function reply()
     {
-        if (!isset($_SERVER['CONTENT_TYPE']) || ($_SERVER['CONTENT_TYPE'] !== self::$CONTENT_TYPE)) {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        if (strncmp($contentType, self::$CONTENT_TYPE, strlen(self::$CONTENT_TYPE)) !== 0) {
             self::errorInvalidContentType();
         }
 
