@@ -55,12 +55,14 @@ class Server
 
         if (strncmp($contentType, self::$CONTENT_TYPE, strlen(self::$CONTENT_TYPE)) !== 0) {
             self::errorInvalidContentType();
+            return;
         }
 
         $message = @file_get_contents('php://input');
 
         if ($message === false) {
             self::errorInvalidBody();
+            return;
         }
 
         $server = new JsonRpc\Server($this->evaluator);
@@ -69,6 +71,7 @@ class Server
 
         if ($reply === null) {
             self::successNoContent();
+            return;
         }
 
         self::successContent($reply);
@@ -87,7 +90,6 @@ class Server
     private static function successNoContent()
     {
         header('HTTP/1.1 204 No Content');
-        exit();
     }
 
     /**
@@ -101,8 +103,8 @@ class Server
         header('HTTP/1.1 200 OK');
         header('Content-Type: ' . self::$CONTENT_TYPE);
         header('Content-Length: ' . strlen($content));
+
         echo $content;
-        exit();
     }
 
     /**
@@ -169,7 +171,5 @@ header p {
 
 </html>
 EOS;
-
-        exit();
     }
 }

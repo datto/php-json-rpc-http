@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.0.6] - 2020-03-03
+### Changed
+ - Removed the exit statements from the "Server" class, so you can control the
+   termination of your own scripts
+
 ## [5.0.5] - 2020-02-28
 ### Changed
  - Updated the internal "datto/json-rpc" dependency
