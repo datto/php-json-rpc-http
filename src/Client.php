@@ -449,7 +449,7 @@ class Client
     public static function onError($level, $message, $file, $line)
     {
         $message = trim($message);
-        $code = null;
+        $code = 0;
 
         throw new ErrorException($message, $code, $level, $file, $line);
     }
